@@ -85,16 +85,11 @@ base_model.eval()
 
 model = Qwen3ONNXWrapper(base_model)
 
-# ============================================================
-# 4️⃣ 构造 dummy 输入
-# ============================================================
+
 dummy_input_ids = torch.ones((1, 32), dtype=torch.long)
 
 print(f"--- Exporting to {output_file} ---")
 
-# ============================================================
-# 5️⃣ ONNX 导出（⚠️ 不使用 use_dynamo）
-# ============================================================
 with torch.no_grad():
     torch.onnx.export(
         model,
