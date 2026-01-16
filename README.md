@@ -16,3 +16,20 @@
 
 ## 思考题：
 在任务三中，目前的推理逻辑每生成一个字都要重新计算整个序列。如果想要加速，应该引入什么机制？（提示：KV Cache）
+
+1.缓存已计算的 K/V
+
+Transformer 的自注意力中，每一层的 K（Key）和 V（Value）只依赖已生成的 token。
+KV Cache 保存前面 token 的 K/V，下一个 token 生成时只计算新 token 的 K/V，然后和缓存做 Attention。
+
+2.只传入新 token
+第一次生成时传入整个 prompt，生成第一个 token。
+后续每次只传入上一次生成的 token，同时传入缓存的 K/V。
+
+3.更新缓存
+每生成一个 token，将对应的新 K/V 拼接到缓存中，下一步使用。
+
+4.实现方法
+outputs = model(input_ids=new_token_ids, past_key_values=past, use_cache=True)
+next_token_logits = outputs.logits[:, -1, :]
+past = outputs.past_key_values
